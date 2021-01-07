@@ -1,0 +1,48 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+@inject SignInManager<GameOfLifeAppUser> SignInManager
+@inject UserManager<GameOfLifeAppUser> UserManager
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to Game of Life</h1>
+
+</div>
+<canvas id="gameCanvas" width="900" height="600">
+
+</canvas>
+<button id="start-button" onclick="start();">Start</button>
+<button onclick="simulateRound();">One Round</button>
+<button onclick="stop();">Stop</button>
+<button onclick="setInitialState();">Reset</button>
+@if (SignInManager.IsSignedIn(User))
+{
+    <button onclick="saveCurrent();">Save</button>
+}
+else
+{
+    <button disabled title="You need to be logged in in order to save">Save</button>
+}
+<span>Round: </span>
+<span id="counter">0</span>
+<span>Speed</span>
+<input type="range" min="1" max="300" value="50" class="slider" id="speed" oninput="updateText(this)">
+<span id="speed-text">50</span>
+@if (SignInManager.IsSignedIn(User))
+{
+    <h2>Saved Games</h2>
+    <div id="saved-games">
+        
+    </div>
+}
+@section Scripts
+{
+    <script src="~/js/canvas_controls.js" asp-append-version="true"></script>
+    <script src="~/js/game.js" asp-append-version="true"></script>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <script>window.userLoggedIn = true;</script>
+    }
+}
