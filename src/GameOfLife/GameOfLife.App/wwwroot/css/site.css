@@ -63,3 +63,24 @@ body {
   height: 60px;
   line-height: 60px; /* Vertically center the text there */
 }
+
+
+.saved-game {
+    background-color: #eee;
+    margin: 10px;
+    display: flex;
+    padding: 15px;
+}
+
+.saved-game h3 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.saved-game .saved-game-info {
+    width: 50%;
+}
+
+.saved-game canvas {
+    float: right;
+}

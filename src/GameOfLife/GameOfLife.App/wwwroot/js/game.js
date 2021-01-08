@@ -8,13 +8,27 @@ var game = {
     get cells() {
         let data = localStorage.getItem("game-data");
         if (data) {
-            return JSON.parse(localStorage.getItem("game-data"));
+            return JSON.parse(data);
         }
         return [];
     },
     set cells(c) {
         console.log("a");
         localStorage.setItem("game-data", JSON.stringify(c));
+    },
+    get lastLoaded() {
+        let data = localStorage.getItem("last-loaded-game-data");
+        if (data) {
+            return JSON.parse(data);
+        }
+        return [];
+    },
+    set lastLoaded(c) {
+        localStorage.setItem("last-loaded-game-data", JSON.stringify(c));
+    },
+    loadBoard: function(c) {
+        this.lastLoaded = c;
+        this.cells = c;
     },
     cellsSaved: function () {
         return localStorage.getItem("game-data") ? true : false;
@@ -191,6 +205,11 @@ function handleCanvasClick(e) {
     redraw();
 }
 
+function reset() {
+    game.loadBoard(game.lastLoaded);
+    setInitialState();
+}
+
 function setInitialState() {
     roundCounter = 0;
     let slider = $('#speed');
@@ -251,7 +270,7 @@ function reloadSavedGames() {
 
 function loadSaved(id) {
     let data = $("#saved-game-" + id).attr("data-game");
-    game.cells = JSON.parse(data);
+    game.loadBoard(JSON.parse(data));
     redraw();
 }
 

@@ -2,10 +2,15 @@
 
 @foreach (var item in Model)
 {
-    <div>
-        <h3>Title: @item.Title</h3>
-        <p>Created: @item.CreatedDateTime</p>
-        <canvas id="saved-game-@item.Id" data-game="@item.Data"></canvas>
-        <button onclick="loadSaved(@item.Id)">Load</button>
+    <div class="saved-game">
+        <div class="saved-game-info">
+            <h3>@item.Title</h3>
+            <p>Created: @item.CreatedDateTime</p>
+            
+            <button onclick="loadSaved(@item.Id)">Load</button>
+            <button title="Remove" onclick="removeSaved(@item.Id)">Remove</button>
+        </div>
+
+        <canvas  width="300" height="200" id="saved-game-@item.Id" data-game="@item.Data"></canvas>
     </div>
 }
