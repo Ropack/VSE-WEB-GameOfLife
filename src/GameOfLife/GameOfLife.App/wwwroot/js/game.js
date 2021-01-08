@@ -212,24 +212,29 @@ function reset() {
 
 function setInitialState() {
     roundCounter = 0;
+    $('#counter').text(roundCounter);
     let slider = $('#speed');
     slider.val(localStorage.getItem("simulation-speed"));
     updateText(slider[0]);
     if (!game.cellsSaved()) {
         let cells = [];
-        for (let i = 0; i < 10; i++) {
-            for (let j = 0; j < 10; j++) {
+        for (let i = -5; i < 5; i++) {
+            for (let j = -5; j < 5; j++) {
                 cells.push(new Cell(i, j));
             }
         }
-        game.cells = cells;
+        game.loadBoard(cells);
     }
+    let canvas = $("#gameCanvas")[0];
+    centerGameBoard(canvas, game.cells);
     
     redraw();
 }
 
 function saveCurrent() {
     let title = prompt("Enter title");
+    if (!title) return;
+
     let data = {
         Title: title,
         Data: JSON.stringify(game.cells),
@@ -250,6 +255,24 @@ function saveCurrent() {
     });
 }
 
+function centerGameBoard(canvas, cells) {
+    let minX = Math.min.apply(Math, cells.map(c => c.x)) - 1;
+    let minY = Math.min.apply(Math, cells.map(c => c.y)) - 1;
+    let maxX = Math.max.apply(Math, cells.map(c => c.x)) + 2;
+    let maxY = Math.max.apply(Math, cells.map(c => c.y)) + 2;
+    let offsetX = canvas.width / 2 - (minX + maxX) / 2 * (cellRenderSize + gapRenderSize);
+    let offsetY = canvas.height / 2 - (minY + maxY) / 2 * (cellRenderSize + gapRenderSize);
+    let ctx = canvas.getContext('2d');
+    let transform = ctx.getTransform();
+    ctx.setTransform(transform.a, transform.b, transform.c, transform.d, offsetX, offsetY);
+}
+
+function resetZoom(canvas) {
+    let ctx = canvas.getContext('2d');
+    let transform = ctx.getTransform();
+    ctx.setTransform(1, transform.b, transform.c, 1, transform.e, transform.f);
+}
+
 function reloadSavedGames() {
     $.ajax({
         type: "GET",
@@ -262,15 +285,21 @@ function reloadSavedGames() {
     }).done(function (data) {
         
         $("#saved-games").html("").append(data);
-        $("[data-game]").each(function(i,c) {
-            drawGame(c, JSON.parse($(this).attr("data-game")));
+        $("[data-game]").each(function (i, c) {
+            let cells = JSON.parse($(this).attr("data-game"));
+            centerGameBoard(c, cells);
+            drawGame(c, cells);
         });
     });
 }
 
 function loadSaved(id) {
     let data = $("#saved-game-" + id).attr("data-game");
-    game.loadBoard(JSON.parse(data));
+    let cells = JSON.parse(data);
+    game.loadBoard(cells);
+    let canvas = $("#gameCanvas")[0];
+    centerGameBoard(canvas, cells);
+    resetZoom(canvas);
     redraw();
 }
 
