@@ -4,6 +4,12 @@ var runningInterval;
 const cellRenderSize = 10;
 const gapRenderSize = 1;
 
+var config = {
+    minCountAlive: 2,
+    maxCountAlive: 3,
+    countComeToLife: 3
+}
+
 var game = {
     get cells() {
         let data = localStorage.getItem("game-data");
@@ -77,14 +83,14 @@ var game = {
         for (let i = minX; i < maxX; i++) {
             for (let j = minY; j < maxY; j++) {
                 let liveNeighbors = this.getLiveNeighbors(cells, i, j);
-                if (liveNeighbors < 2 || liveNeighbors > 3) {
+                if (liveNeighbors < config.minCountAlive || liveNeighbors > config.maxCountAlive) {
                     // die
                 }
-                else if (liveNeighbors === 2 && this.isLive(cells, i, j)) {
+                else if (liveNeighbors === config.minCountAlive && this.isLive(cells, i, j)) {
                     // keep alive
                     nextRoundCells.push(new Cell(i, j));
                 }
-                else if (liveNeighbors === 3) {
+                else if (liveNeighbors === config.countComeToLife) {
                     // born
                     nextRoundCells.push(new Cell(i, j));
                 }
@@ -227,6 +233,10 @@ function setInitialState() {
     }
     let canvas = $("#gameCanvas")[0];
     centerGameBoard(canvas, game.cells);
+
+    $("#minCountAlive").val(config.minCountAlive);
+    $("#maxCountAlive").val(config.maxCountAlive);
+    $("#countComeToLife").val(config.countComeToLife);
     
     redraw();
 }
@@ -303,6 +313,18 @@ function loadSaved(id) {
     redraw();
 }
 
+function applyConfig() {
+    
+    let x = parseInt($("#maxCountAlive").val());
+    if (x < 1) {
+        alert("Entered value is not valid.");
+    } else {
+        config.minCountAlive = parseInt($("#minCountAlive").val());
+        config.maxCountAlive = x;
+        config.countComeToLife = parseInt($("#countComeToLife").val());
+    }
+}
+
 $(document).ready(function () {
     let canvasElement = $("#gameCanvas");
     let canvas = canvasElement[0];
@@ -321,6 +343,13 @@ $(document).ready(function () {
 
         console.log(o.target.value);
         localStorage.setItem("simulation-speed", o.target.value);
+    });
+
+
+    $("#config-form").submit(function (e) {
+        e.preventDefault();
+        applyConfig();
+        return false;
     });
 
     if (window.userLoggedIn) {
